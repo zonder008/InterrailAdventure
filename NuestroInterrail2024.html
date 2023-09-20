@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interrail Adventure</title>
+    <!-- Incluye una hoja de estilos de Font Awesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Incluye una fuente de Google Fonts llamada 'Bungee Shade' -->
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&display=swap" rel="stylesheet">
+    <!-- Incluye la hoja de estilos de Leaflet, una biblioteca de mapas interactivos -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Incluye la biblioteca de Leaflet para mapas interactivos -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+
+<style>
+        /* Estilos generales para el cuerpo de la página */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+        /* Estilos para el encabezado (header) */
+    header {
+        background-image: url('header.jpg');
+        background-size: cover; /* Esta propiedad CSS hace que la imagen de fondo se ajuste automáticamente al tamaño del encabezado*/
+        background-repeat: no-repeat; /*Esto evita que la imagen de fondo se repita en caso de que su tamaño sea menor que el del encabezado*/
+        background-position: center;
+        color: rgb(8, 54, 61);
+        padding: 22px 0;
+        text-align: center;
+        font-size: 54px;
+        font-family: 'Bungee Shade', cursive;
+    }
+
+        /* Estilos para la barra de navegación (nav) */
+    nav {
+        background-color: rgb(8, 54, 61);
+        color: #fff;
+        text-align: center;
+        padding: 12px;
+        display: flex; /*Convierte la barra de navegación en un contenedor flexible*/
+        justify-content: center; 
+    }
+
+        /* Estilos para los enlaces (links) en la barra de navegación */
+    nav a {
+        font-family: Arial, sans-serif;
+        color: #fff;
+        text-decoration: none;
+        margin: 0 15px;
+        position: relative;
+    }
+
+        /* Agrega un separador "|" después de todos los enlaces excepto el último */
+    nav a:not(:last-child)::after {
+        content: "|";
+        margin-left: 15px; 
+        color: #ffffff; 
+    }
+
+        /* Estilos cuando el cursor se sitúa sobre un enlace, subraya el texto */
+    nav a:hover {
+        text-decoration: underline;
+    }
+
+        /* Estilos para un contenedor central en la página */
+    .container {
+        font-family: Arial, sans-serif;
+        max-width: 960px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: #fff;
+        text-align: center;
+        border-radius: 25px;
+        box-shadow: 0px 0px 15px rgb(22,114,126);
+    }
+
+        /* Estilos para el pie de página (footer) */
+    footer {
+        background-color: rgb(8, 54, 61);
+        color: #fff;
+        text-align: center;
+        padding: 5px 0;
+        width: 100%; /*Establece el ancho del pie de página al 100% del ancho de su contenedor principal. Esto asegura que el pie de página se extienda completamente a lo ancho de su contenedor, ocupando todo el espacio disponible horizontalmente */
+    }
+
+        /* Estilos para el contenedor de íconos de redes sociales en el pie de página */
+    .social-icons {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: 0px;
+        padding-top: 0px;
+    }
+
+        /* Estilos para los íconos de redes sociales, configuración del diseño y tamaño */
+    .social-icons a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 10px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 20px;
+    }
+
+        /* Estilos para las iniciales en el encabezado, estilo de texto, color de fondo, etc. */
+    .initial {
+        font-size: 14px;
+        color: #fff;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 1px 6px;
+        border-radius: 4px;
+        margin-top: 5px;
+        z-index: 1;
+    }
+
+        /* Estilos para imágenes centradas, texto alineado al centro */
+    .centered-image {
+        text-align: center;
+    }
+
+        /* Estilos para las imágenes en el pie de página, tamaño máximo, sombra y saturación */
+    .footer-image {
+        max-width: 100%;
+        width: 40%;
+        margin-top: 20px;
+        border-radius: 15px;
+        box-shadow: 0px 0px 15px rgb(22,114,126);
+        filter: saturate(150%);
+    }
+
+        /* Efecto de aumento de tamaño en las imágenes al pasar el cursor sobre ellas */
+    .footer-image:hover {
+        transform: scale(1.1);
+    }
+
+        /* Estilos para los pies de las imágenes, tamaño de fuente y color */
+    .image-caption {
+        font-size: 16px;
+        color: #646262;
+        margin-top: 14px;
+    }
+
+    /* Estilos para los títulos de los apartados, tamaño de fuente, color y centrado */
+    .title {
+        font-size: 25px;
+        color: rgb(22, 114, 126);
+        margin-bottom: 10px;
+        margin-top: 10px;
+        text-align: center;
+    }
+
+        /* Estilos para la sección de consejos, fondo y espaciado interno */
+    consejos {
+        background-color: #f8f8f8;
+        padding: 40px 0;
+    }
+
+        /* Estilos para el contenedor de consejos, tamaño máximo, borde y sombra */
+    .consejo-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #bbbbbb;
+        border-radius: 25px;
+        background-color: #fff;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+        /* Estilos para el contenido de los consejos, tamaño de fuente, color y alineación */
+    .consejo-content {
+        font-size: 16px;
+        color: #646262;
+        line-height: 1.8;
+        text-align: left;
+    }
+
+        /* Estilos para la lista de consejos, margen superior, sangría izquierda, etc. */
+    .consejo-list {
+        margin-top: 20px;
+        padding-left: 20px;
+        text-align: left;
+        list-style-type: none;
+    }
+
+        /* Estilos para los elementos de la lista de consejos, margen inferior y alineación */
+    .consejo-list li {
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+        /* Estilos para los íconos de consejos, color y margen derecho */
+    .consejo-icon {
+        color: rgb(22, 114, 126);
+        margin-right: 10px;
+        text-align: left;
+    }
+
+        /* Estilos para imágenes centradas en la lista de consejos y su margen */
+    .consejo-list .centered-image {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+        /* Estilos para el mapa, ancho y alto */
+    #map {
+        width: 100%;
+        height: 500px;
+    }
+
+        /* Estilos para el contenedor de enlaces, margen y alineación */
+    .link-container {
+        margin: 20px; 
+        text-align: center; 
+    }
+
+        /* Estilos para los enlaces personalizados, tamaño de fuente, color y subrayado */
+    .custom-link {
+        font-size: 18px;
+        color: blue; 
+        text-decoration: none; 
+    }
+
+        /* Cambiar el color del enlace cuando se coloca encima */
+    .custom-link:hover {
+        color: darkblue;
+    }
+
+        /* Estilos para la descripción de los enlaces, tamaño de fuente, color y margen superior */
+    .custom-description {
+        font-size: 16px; 
+        color: #333; 
+        margin-top: 5px; 
+    }
+
+        /* Estilos para el botón de Volver Arriba */
+    #volverArribaBtn {
+        display: none; /* Ocultar el botón inicialmente */
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 99;
+        font-size: 18px;
+        background-color: rgb(8, 54, 61); /* Color de fondo del botón */
+        color: #fff; /* Color del texto */
+        outline: none;
+        border:rgb(8, 48, 54);
+        cursor: pointer;
+        padding: 12px;
+        border-radius: 60%;
+        }
+
+    #volverArribaBtn:hover {
+        background-color: rgb(8, 48, 54); /* Cambiar el color de fondo al pasar el mouse */
+        }
+
+</style>
+
+    <body>
+        <header>
+            <!-- Encabezado de la página -->
+            <h1>Interrail Adventure</h1>
+            <!-- Slogan debajo del título -->
+            <h5 style="margin-top: -110px; margin-bottom: auto;">Convierte sueños en destinos</h5>
+        </header>
+        
+        <nav class="nav">
+            <!-- Barra de navegación principal -->
+            <a href="#inicio">Inicio</a>
+            <a href="#historia">Historia</a>
+            <a href="#consejos">Consejos</a>
+            <a href="#destinos">Destinos</a>
+            <a href="#itinerario">Itinerario</a>
+            <a href="#mapa">Mapa</a>
+            <a href="#links">Links</a>
+
+            <style>
+                    /* Estilos para la barra de navegación (nav) */
+                .nav {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    background-color: rgb(8, 54, 61);
+                    color: #fff;
+                    text-align: center;
+                    padding: 12px;
+                    z-index: 100;
+                }
+                
+                    /* Estilos para los enlaces de navegación (nav a) */
+                .nav a {
+                    font-family: Arial, sans-serif;
+                    color: #fff;
+                    text-decoration: none;
+                    margin: 0 15px;
+                    position: relative;
+                }
+                </style>
+        </nav>
+
+        <section id="inicio">
+                <!-- Contenedor principal de la sección de inicio -->
+            <div class="container">
+                    <!-- Título principal de la sección -->
+                <h2 style="color: rgb(22, 114, 126);">Bienvenido a Interrail Adventure</h2>
+                    <!-- Descripción de la sección -->
+                <p>Descubre los destinos más emocionantes de Europa viajando con Interrail.</p>
+                <p>Explora ciudades, conoce nuevas culturas y vive experiencias únicas en tu viaje en tren.</p>
+            </div>
+        
+                <!-- Contenedor centrado para la imagen y su descripción -->
+            <div class="centered-image">
+                    <!-- Imagen de fondo de la sección -->
+                <img class="footer-image" src="Tren.jpg" alt="Fotito hecha con IA">
+                    <!-- Descripción de la imagen -->
+                <p class="image-caption">Pon el ratón encima para hacer zoom</p>
+            </div>
+        </section>        
+
+        <section id="historia">
+                <!-- Sección de Historia -->
+            <div class="container">
+                    <!-- Contenedor principal -->
+                <h4 class="title">Historia de Interrail Adventure</h4>
+                    <!-- Título de la historia -->
+                <div class="consejo-content" style="color: black; text-align: justify;">
+                        <!-- Contenido de la historia con estilo justificado -->
+                    <p style="text-indent: 30px;">
+                        Esta página la he creado sobretodo para aprender a hacer páginas webs, ya que he aprendido desde 0 y por mi cuenta para poder hacerla 
+                        (así que no me lo tengáis mucho en cuenta jeje).
+                    </p>
+                    <p style="text-indent: 30px;">
+                        Pero también nos va a ser útil porque aquí hay algunos consejitos, información de cada destino que vamos a visitar, un mapa de Europa con la ruta,
+                        el itinerario y algunos links a páginas que nos van a ser muy útiles. Pero antes de verlo todo, ¿qué tal si empezamos por como empezamos este 
+                        viaje?
+                    </p>
+                    <p style="text-indent: 30px;">
+                        Este es un viaje que cualquiera de nosotros hemos soñado alguna vez, 15 o 20 días viajando por todo Europa y con algunos de nuestros mejores 
+                        amigos. Pero quien se iba a imaginar que esta historia empezaría como toda buena aventura tiene que empezar, con una charla nocturna en el sótano
+                        de la casa de uno de nosotros (Gracias Marcos &lt;3).
+                    </p>
+                    <p style="text-indent: 30px;">
+                        Al principio dijimos de viajar a Francia, a Bourg-en-Bresse ya que no pudimos ir de intercambio por el **** covid, pero a los 2 minutos ya 
+                        estábamos mirando el mapa de Europa (o intentándolo) y diciendo que nos encantaría hacer el Interrail y que sólo lo haríamos con los que 
+                        estábamos ahí. Y bueno, meses más tarde aquí estamos, organizando todo y con muchas ganas de que llegue ya la hora. 
+                    </p>
+                    <p style="text-indent: 30px;">
+                        Pero claro, esta página la he hecho yo (Pablo) y como ya sabreís me encantan las curiosidades y los "¿Sabías qué?" así que primero de todo vamos 
+                        allá con una preguntita (es una tontería pero bueno, por probar).
+                    </p>
+                </div>
+                    <!-- Botón para mostrar una pregunta -->
+                <button id="sabiasQue">¿Sabías qué?</button>
+            </div>
+        </section>        
+
+        <style>
+                /* Estilo para el modal que muestra la pregunta "¿Sabías qué?" */
+            .modal {
+                display: none; 
+                position: fixed; 
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7); 
+                z-index: 1; 
+            }
+            
+                /* Estilo para el contenido del modal */
+                .modal-content {
+                    background-color: #fff; 
+                    text-align: center;
+                    margin: 5% auto; 
+                    padding: 20px; 
+                    border-radius: 5px; 
+                    width: 60%; 
+                    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
+                }
+                
+                    /* Estilo para el botón de cerrar el modal */
+                .close-button {
+                    color: #000000;
+                    float: right; 
+                    font-size: 38px; 
+                    font-weight: bold; /*Pone en negrita */
+                }
+        </style>        
+
+        <div id="modalCuestionario" class="modal">
+            <!-- Contenedor del modal -->
+                <div class="modal-content">
+                    <!-- Botón de cierre del modal (X) -->
+                    <span class="close-button" id="closeButton">&times;</span>
+                    <h2 style="text-align: center; color: rgb(22, 114, 126);">¿Sabías que?</h2>
+                    <!-- Pregunta -->
+                    <p style="text-align: center; font-size: 20px;" >¿Cuál es la edad mínima para obtener un pase de Interrail?</p>
+                    <form id="cuestionario">
+                    <!-- Formulario de opciones de respuesta -->
+                    <label>
+                        <input type="radio" name="respuesta" value="12 años"> 12 años
+                            </label><br>
+                    <label>
+                        <input type="radio" name="respuesta" value="14 años"> 14 años
+                            </label><br> 
+                    <label>
+                        <input type="radio" name="respuesta" value="16 años"> 16 años
+                            </label><br>
+                    <label>
+                        <input type="radio" name="respuesta" value="18 años"> 18 años
+                            </label><br>
+                    </form>
+                    <!-- Botón para verificar la respuesta seleccionada -->
+                    <button style="display: block; margin: 0 auto;" onclick="verificarRespuesta()">Verificar</button>
+                </div>
+        </div>
+
+        <script>
+                        // Obtén elementos del DOM
+                    const sabiasQue = document.getElementById('sabiasQue'); // Botón para abrir el modal
+                    const modalCuestionario = document.getElementById('modalCuestionario'); // Modal
+                    const closeButton = document.getElementById('closeButton'); // Botón de cierre del modal
+
+                        // Agrega un evento para abrir el modal cuando se hace clic en "¿Sabías qué?"
+                    sabiasQue.addEventListener('click', () => {
+                    modalCuestionario.style.display = 'block';
+                });
+
+                    // Agrega un evento para cerrar el modal cuando se hace clic en el botón de cierre
+                    closeButton.addEventListener('click', () => {
+                    modalCuestionario.style.display = 'none';
+                });
+
+                        // Agrega un evento para cerrar el modal cuando se presiona la tecla Esc
+                    window.addEventListener('keydown', (event) => {
+                        if (event.key === 'Escape') {
+                        modalCuestionario.style.display = 'none';
+                        }
+                });
+
+                        // Función para verificar la respuesta seleccionada
+                    function verificarRespuesta() {
+                        const respuestaUsuario = document.querySelector('input[name="respuesta"]:checked');
+                            if (respuestaUsuario) {
+                                const respuesta = respuestaUsuario.value;
+                                if (respuesta === '18 años') {
+                                    alert('¡Respuesta correcta!'); // Muestra un mensaje de respuesta correcta
+                                    modalCuestionario.style.display = 'none'; // Cierra el modal
+                                } else {
+                                    alert('Respuesta incorrecta. Inténtalo de nuevo.'); // Muestra un mensaje de respuesta incorrecta
+                                }
+                            } else {
+                                alert('Selecciona una respuesta antes de verificar.'); // Muestra un mensaje si no se selecciona una respuesta
+                        }
+                }
+        </script>
+
+        <section id="consejos">
+                <!-- Contenedor principal de la sección de consejos -->
+            <div class="container">
+                    <!-- Contenedor para los consejos -->
+                <div class="consejo-container">
+                        <!-- Título de la sección -->
+                    <h4 class="title">Consejos para tu viaje de Interrail</h4>
+                        <!-- Lista de consejos -->
+                    <ul class="consejo-list">
+                            <!-- Primer consejo -->
+                        <li><i class="fas fa-check-circle consejo-icon"></i><strong>No necesitas ser demasiado estricto</strong> con el itinerario, pero tener una idea te ayudará a aprovechar mejor el tiempo.</li>
+                            <!-- Segundo consejo -->
+                        <li><i class="fas fa-check-circle consejo-icon"></i>Investiga los <strong>horarios</strong> de trenes y conexiones. Algunas rutas requieren <strong>reservas</strong> previas, así que asegúrate de conocer los <strong>detalles</strong>.</li>
+                            <!-- Tercer consejo -->
+                        <li><i class="fas fa-check-circle consejo-icon"></i><strong>No olvides artículos esenciales</strong> como adaptadores de enchufe, crema solar, botella de agua reutilizable, candado.</li>
+                            <!-- Cuarto consejo -->
+                        <li><i class="fas fa-check-circle consejo-icon"></i><strong>Aprovecha</strong> los <strong>descuentos</strong> y ofertas locales para <strong>actividades</strong> y atracciones.</li>
+                            <!-- Quinto consejo con imagen -->
+                        
+                            <li class="centered-image">
+                                <!-- Imagen -->
+                            <img class="consejo-image" width="60%" src="consejos1.jpg" alt="Nueva Imagen" style="height: auto; max-height: 650px;">
+                        </li>
+
+                            <!-- Sexto consejo -->
+                        <li><i class="fas fa-check-circle consejo-icon"></i><strong>Lleva</strong> contigo una <strong>copia</strong> de tus <strong>documentos</strong> importantes, como pasaporte y pase de Interrail.</li>
+                            <!-- Séptimo consejo -->
+                        <li><i class="fas fa-check-circle consejo-icon"></i>Puedes hacer los <strong>viajes largos</strong> por la <strong>noche</strong> para ahorrarte un día, pero hay algunas <strong>condiciones</strong>:
+                            El tren tiene que salir a partir de las 7 de la tarde y llegar después de las 4 de la mañana.</li>
+                            <!-- Octavo consejo -->
+                        <li><i class="fas fa-check-circle consejo-icon"></i>Las <strong>consignas</strong> de las <strong>estaciones</strong> pueden salvarte en muchas ocasiones para poder andar <strong>cómodo</strong> por la ciudad y aun precio muy económico.</li>
+                            <!-- Noveno consejo -->
+                        <li><i class="fas fa-check-circle consejo-icon"></i><strong>Descarga</strong> los <strong>mapas</strong> de las ciudades que vayas a visitar por si no hay <strong>conexión</strong>.</li>
+                            <!-- Décimo consejo -->
+                        <li><i class="fas fa-check-circle consejo-icon"></i>El Interrail se trata de la <strong>experiencia</strong>, <strong>no</strong> de la cantidad de lugares que puedes marcar en tu <strong>lista</strong>.</li>
+                            <!-- Undécimo consejo -->
+                        <li><i class="fas fa-check-circle consejo-icon"></i><strong>Disfruta</strong> de cada <strong>momento</strong> y <strong>no te preocupes</strong> demasiado por los detalles, dejate llevar.</li>
+                    </ul>
+                        
+                    <!-- Imagen -->
+                    <div class="centered-image">
+                        <img class="consejo-image" width="60%" src="consejos2.jpg" alt="Equipaje">
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="destinos">
+            <!-- Contenedor principal de la sección de destinos -->
+            <div class="container">
+                <!-- Título de la sección -->
+                <h4 class="title">Destinos de nuestro Interrail</h4>
+                <!-- Introducción -->
+                <p>Aquí puedes encontrar información sobre los países de nuestra ruta.</p>
+                    <!-- Contenedor para los destinos -->
+                    <div class="consejo-container">
+
+                        <!-- Destino 1: Venecia -->
+                        <h5 class="title">Venecia</h5>
+                        <!-- Descripción de Venecia -->
+                        <p>
+                            Venecia, conocida como 'La Ciudad de los Canales', es perfecta para pasear por sus calles adoquinadas y disfrutar de la arquitectura renacentista. En un día puedes explorar la Plaza de San Marcos, dar un paseo en una góndola (¡comparte el costo con amigos!) y disfrutar de la comida local en puestos callejeros.
+                        </p>
+                        <!-- Imagen de Venecia -->
+                        <div class="centered-image">
+                            <img class="consejo-image" src="Venecia.jpg" alt="Imagen de Venecia" width="40%">
+                        </div>
+            
+                        <!-- Destino 2: Liubliana -->
+                        <h5 class="title">Liubliana</h5>
+                        <!-- Descripción de Liubliana -->
+                        <p>
+                            Liubliana, la capital de Eslovenia, es una ciudad encantadora con un casco antiguo bien conservado y una atmósfera relajada. El castillo ofrece vistas panorámicas de la ciudad, y el Puente de los Dragones es un símbolo emblemático. Disfruta de un paseo a lo largo del río Ljubljanica y explora la rica historia y cultura de la ciudad en sus museos y galerías.
+                        </p>
+                        <!-- Imagen de Liubliana -->
+                        <div class="centered-image">
+                            <img class="consejo-image" src="liubliana.jpg" alt="Imagen de Liubliana" width="40%">
+                        </div>
+            
+                        <!-- Destino 3: Salzburgo -->
+                        <h5 class="title">Salzburgo</h5>
+                        <!-- Descripción de Salzburgo -->
+                        <p>
+                            Salzburgo, la ciudad natal de Mozart, es conocida por su encanto barroco y su hermoso entorno alpino. Puedes visitar la Casa de Mozart y disfrutar de la música clásica en uno de los festivales de la ciudad. Explora su casco antiguo, con sus calles adoquinadas y plazas pintorescas.
+                        </p>
+                        <!-- Imagen de Salzburgo -->
+                        <div class="centered-image">
+                            <img class="consejo-image" src="salzburgo.jpg" alt="Imagen de Salzburgo" width="40%">
+                        </div>
+            
+                        <!-- Destino 4: Munich -->
+                        <h5 class="title">Munich</h5>
+                        <!-- Descripción de Munich -->
+                        <p>
+                            Munich, la capital de Baviera, ofrece parques y lugares de interés económicos. Disfruta de la Marienplatz y explora los parques de la ciudad. También puedes probar la comida local en biergartens (son jardines de cerveza al aire libre o terrazas donde se sirve cerveza, comida y a menudo música en vivo en un ambiente relajado y social.) asequibles.
+                        </p>
+                        <!-- Imagen de Munich -->
+                        <div class="centered-image">
+                            <img class="consejo-image" src="munich.jpg" alt="Imagen de Munich" width="40%">
+                        </div>
+            
+                        <!-- Destino 5: Praga -->
+                        <h5 class="title">Praga</h5>
+                        <!-- Descripción de Praga -->
+                        <p>
+                            Praga, la capital checa, es famosa por su encanto gótico. Explora su icónico Puente de Carlos, admira la Plaza de la Ciudad Vieja y su reloj astronómico, y sumérgete en su rica historia y cultura.
+                        </p>
+                        <!-- Imagen de Praga -->
+                        <div class="centered-image">
+                            <img class="consejo-image" src="praga.jpg" alt="Imagen de Praga" width="40%">
+                        </div>
+            
+                        <!-- Destino 6: Cracovia -->
+                        <h5 class="title">Cracovia</h5>
+                        <!-- Descripción de Cracovia -->
+                        <p>
+                            Cracovia es un destino imprescindible en tu viaje. Explora su casco antiguo, donde encontrarás la impresionante Plaza del Mercado y la Basílica de Santa María. Visita el Castillo de Wawel para sumergirte en la historia de la ciudad. Además, no te pierdas el Barrio Judío de Kazimierz, lleno de encanto y vida.
+                        </p>
+                        <!-- Imagen de Cracovia -->
+                        <div class="centered-image">
+                            <img class="consejo-image" src="cracovia.jpg" alt="Imagen de Cracovia" width="40%">
+                        </div>
+            
+                        <!-- Destino 7: Budapest -->
+                        <h5 class="title">Budapest</h5>
+                        <!-- Descripción de Budapest -->
+                        <p>
+                            Budapest ofrece una amplia variedad de lugares interesantes para explorar. Visita el Castillo de Buda, sumérgete en la relajación de los baños Széchenyi y no te olvides de visitar la Basílica de San Esteban y el Parlamento Húngaro.
+                        </p>
+                        <!-- Imagen de Budapest -->
+                        <div class="centered-image">
+                            <img class="consejo-image" src="budapest.jpg" alt="Imagen de Budapest" width="40%">
+                        </div>
+            
+                        <!-- Destino 8: Zagreb -->
+                        <h5 class="title">Zagreb</h5>
+                        <!-- Descripción de Zagreb -->
+                        <p>
+                            Zagreb, ofrece una rica experiencia cultural. Puedes comenzar explorando la histórica Plaza Ban Jelačić, luego dirigirte al Museo Mimara para disfrutar del arte y la historia. No te pierdas la majestuosa Catedral de Zagreb y el encanto de la Ciudad Alta, con sus calles empedradas y edificios históricos.
+                        </p>
+                        <!-- Imagen de Zagreb -->
+                        <div class="centered-image">
+                            <img class="consejo-image" src="zagreb.jpg" alt="Imagen de Zagreb" width="40%">
+                        </div>
+            
+                        <!-- Destino 9: Split -->
+                        <h5 class="title">Split</h5>
+                        <!-- Descripción de Split -->
+                        <p>
+                            Split, comienza explorando el impresionante Palacio de Diocleciano, un sitio del Patrimonio Mundial de la UNESCO. No te pierdas la Catedral de San Duje y el Templo de Júpiter. Para disfrutar del entorno natural, visita la colina Marjan para vistas panorámicas de la ciudad y sus playas locales. Además, si tienes tiempo, no te pierdas la Cala Kašjuni, una hermosa cala que merece la pena visitar.
+                        </p>
+                        <!-- Imagen de Split -->
+                        <div class="centered-image">
+                            <img class="consejo-image" src="split.jpg" alt="Imagen de Split" width="40%">
+                        </div>
+                    </div>
+            </div>
+        </section>        
+        
+        <section id="itinerario">
+            <!-- Contenedor principal de la sección de itinerario -->
+            <div class="container">
+                <!-- Título de la sección -->
+                <h4 class="title">Itinerario del Viaje</h4>
+                <!-- Introducción -->
+                <p>Aquí puedes encontrar la información sobre qué vamos a hacer cada día (más o menos).</p>
+                    <!-- Contenedor para el itinerario-->
+                    <div class="consejo-container">
+                        <!-- Día 1 -->
+                        <h5 class="title">Día 1: Venecia</h5>
+                        <p>A</p>
+
+                        <!-- Día 2 -->
+                        <h5 class="title">Día 2: Liubliana</h5>
+                        <p>A</p>
+
+                        <!-- Día 3 -->
+                        <h5 class="title">Día 3: Liubliana-Salzburgo</h5>
+                        <p>A</p>
+
+                        <!-- Día 4 -->
+                        <h5 class="title">Día 4: Salzburgo</h5>
+                        <p>A</p>
+
+                        <!-- Día 5 -->
+                        <h5 class="title">Día 5: Salzburgo-Múnich</h5>
+                        <p>A</p>
+
+                        <!-- Día 6 -->
+                        <h5 class="title">Día 6: Múnich</h5>
+                        <p>A</p>
+
+                        <!-- Día 7 -->
+                        <h5 class="title">Día 7: Múnich</h5>
+                        <p>A</p>
+
+                        <!-- Día 8 -->
+                        <h5 class="title">Día 8: Múnich-Praga</h5>
+                        <p>A</p>
+                        
+                        <!-- Día 9 -->
+                        <h5 class="title">Día 9: Praga</h5>
+                        <p>A</p>
+
+                        <!-- Día 10 -->
+                        <h5 class="title">Día 10: Praga-Cracovia</h5>
+                        <p>A</p>
+
+                        <!-- Día 11 -->
+                        <h5 class="title">Día 11: Cracovia</h5>
+                        <p>A</p>
+
+                        <!-- Día 12 -->
+                        <h5 class="title">Día 12: Cracovia-Budapest</h5>
+                        <p>A</p>
+
+                        <!-- Día 13 -->
+                        <h5 class="title">Día 13: Budapest</h5>
+                        <p>A</p>
+
+                        <!-- Día 14 -->
+                        <h5 class="title">Día 14: Budapest</h5>
+                        <p>A</p>
+
+                        <!-- Día 15 -->
+                        <h5 class="title">Día 15: Budapest-Zagreb</h5>
+                        <p>A</p>
+
+                        <!-- Día 16 -->
+                        <h5 class="title">Día 16: Zagreb-Split</h5>
+                        <p>A</p>
+
+                        <!-- Día 17 -->
+                        <h5 class="title">Día 17: Split</h5>
+                        <p>A</p>
+
+                        <!-- Día 18 -->
+                        <h5 class="title">Día 18: Split-Madrid</h5>
+                        <p>A</p>
+                    </div>
+            </div>
+        </section>
+
+        <section id="mapa">
+            <div class="container">
+                <h4 class="title">Mapa Interactivo</h4>
+                <p>Explora el mapa interactivo con nuestra ruta y haz clic en los destinos para obtener más información.</p>
+                    <!-- Aquí se creará el mapa y se le da un alto de 400px -->
+                <div id="map" style="height: 400px;"></div>
+            </div>
+        </section>
+
+        <script>
+                // Creamos un mapa Leaflet y lo configuramos con una ubicación inicial y un nivel de zoom
+            var map = L.map('map').setView([49.55, 15.57], 4.5); 
+
+                // Agregamos una capa de mosaico de OpenStreetMap al mapa
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                language: 'es'
+            }).addTo(map);
+
+                // Definimos las ubicaciones de los marcadores para cada destino, incluyendo el nombre de la ciudad y la información adicional
+                var markerLocations = [
+            {
+                coords: [45.4408, 12.3155], // Venecia
+                city: "Venecia",
+                info: "Venecia, prueba los cicchetti (aperitivos) en los bares locales y disfruta de un auténtico risotto de mariscos en un restaurante junto al canal."
+            },
+
+            {
+                coords: [46.0569, 14.5058], // Liubliana
+                city: "Liubliana",
+                info: "En Liubliana, puedes ahorrar dinero al comer en los mercados locales, donde encontrarás opciones de comida tradicional eslovena a precios asequibles. No te pierdas el kremšnita, un delicioso pastel local."
+            },
+
+            {
+                coords: [47.8111,12.914], //Salzburgo
+                city: "Salzburgo",
+                info: "En Salzburgo, opta por los mercados de alimentos locales para disfrutar de la auténtica cocina austriaca a precios razonables. Prueba la tarta Sachertorte en una de las cafeterías tradicionales."
+            },
+
+            {
+                coords: [48.155022,11.377], //Múnich
+                city: "Múnich",
+                info: "En Múnich, los biergartens son ideales para disfrutar de la comida y la cerveza locales a precios razonables. También puedes probar las salchichas bávaras y el pretzel en los puestos callejeros."
+            },
+
+            {
+                coords: [50.088, 14.42], // Praga
+                city: "Praga",
+                info: "En Praga, busca los lugares locales para probar el famoso cerdo asado y los knedlíky (bolas de masa). Ahorrarás dinero y disfrutarás de la auténtica comida checa."
+            },
+
+            {
+                coords: [50.061, 19.936], // Cracovia
+                city: "Cracovia",
+                info: "En Cracovia, la comida callejera es económica y deliciosa. Prueba los pierogi rellenos y el zapiekanka, un bocadillo tradicional polaco."
+            },
+
+            {
+                coords: [47.4979, 19.0402], // Budapest
+                city: "Budapest",
+                info: "En Budapest, busca los mercados locales para probar la gastronomía húngara a precios asequibles. El langos, un pan frito con coberturas, es una deliciosa opción económica."
+            },
+
+            {
+                coords: [45.814, 15.977], // Zagreb
+                city: "Zagreb",
+                info: "En Zagreb, disfruta de la comida local en los restaurantes locales y busca los platos tradicionales croatas como el cevapi y el štrukli. Ahorrarás dinero al comer como un local."
+            },
+            
+            {
+                coords: [43.5147073,16.417], // Split
+                city: "Split",
+                info: "En Split, prueba los platos de pescado fresco en los restaurantes junto al puerto. También puedes ahorrar dinero al optar por las konoba locales (tabernas) para disfrutar de la comida croata tradicional."
+            }
+        ];
+        
+                // Creamos un marcador para cada destino y les asignamos popups con la información correspondiente
+            markerLocations.forEach(function (location) {
+                var marker = L.marker(location.coords).addTo(map);
+                marker.bindPopup("<b>" + location.city + "</b><br>" + location.info);
+            });
+
+                // Crear una línea para conectar los marcadores (ruta de viaje)
+            var linea = L.polyline(markerLocations.map(location => location.coords), { color: 'black', weight: 1.5 }).addTo(map);
+
+        </script>
+
+        <section id="links">
+            <div class="container">
+                    <!-- Título de la sección -->
+                <h4 class="title">Enlaces Útiles</h4>
+                    <!-- Párrafo introductorio -->
+                <p style="font-size: 20px; font-weight: bold; color: #333;">Explora estos enlaces para planificar tu emocionante viaje de Interrail.</p>
+                
+                    <!-- Contenedor del primer enlace -->
+                <div class="link-container">
+                        <!-- Enlace al sitio web de Interrail -->
+                    <a href="https://www.interrail.eu/es" target="_blank" class="custom-link">
+                        <i class="fas fa-train"></i> Interrail
+                    </a>
+                        <!-- Descripción del enlace a Interrail -->
+                    <p class="custom-description">¡Visita la página oficial de Interrail para comprar tus pases y planificar tu ruta por Europa!</p>
+                </div>
+
+                    <!-- Contenedor del segundo enlace -->
+                <div class="link-container">
+                        <!-- Enlace a Skyscanner para buscar vuelos baratos -->
+                    <a href="https://www.skyscanner.es/" target="_blank" class="custom-link">
+                        <i class="fas fa-plane"></i> Vuelos Baratos
+                    </a>
+                        <!-- Descripción del enlace a Skyscanner -->
+                    <p class="custom-description">Encuentra las mejores ofertas de vuelos.</p>
+                </div>
+
+                    <!-- Contenedor del tercer enlace -->
+                <div class="link-container">
+                        <!-- Enlace a HostelWorld para buscar hostales económicos -->
+                    <a href="https://www.hostelworld.com/" target="_blank" class="custom-link">
+                        <i class="fas fa-bed"></i> HostelWorld
+                    </a>
+                        <!-- Descripción del enlace a HostelWorld -->
+                    <p class="custom-description">Descubre hostales económicos en todo el mundo y reserva tu alojamiento.</p>
+                </div>
+
+                    <!-- Contenedor del cuarto enlace -->
+                <div class="link-container">
+                        <!-- Enlace a Omio para consultar opciones de transporte por Europa -->
+                    <a href="https://www.omio.es/" target="_blank" class="custom-link">
+                        <i class="fas fa-bus"></i> Transporte por Europa
+                    </a>
+                        <!-- Descripción del enlace a Omio -->
+                    <p class="custom-description">Consulta opciones de transporte, incluyendo autobuses y trenes, para moverte por Europa.</p>
+                </div>
+
+                    <!-- Contenedor del quinto enlace -->
+                <div class="link-container">
+                        <!-- Enlace a Civitatis para reservar actividades y tours -->
+                    <a href="https://www.civitatis.com/es" target="_blank" class="custom-link">
+                        <i class="fas fa-map-marked-alt"></i> Actividades por el mundo
+                    </a>
+                        <!-- Descripción del enlace a Civitatis -->
+                    <p class="custom-description">Reserva emocionantes actividades y tours en tu destino.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="social-icons">
+                    <!-- Enlaces a perfiles de Instagram de diferentes usuarios -->
+                <a href="https://www.instagram.com/paabloo_alonso/" target="_blank">
+                        <!-- Inicial de Pablo -->
+                    <span class="initial">P</span>
+                        <!-- Ícono de Instagram -->
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://www.instagram.com/maarinablr/" target="_blank">
+                        <!-- Inicial de Marina -->
+                    <span class="initial">M</span>
+                        <!-- Ícono de Instagram -->
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://www.instagram.com/marcosortegamm/" target="_blank">
+                        <!-- Inicial de Marcos -->
+                    <span class="initial">M</span>
+                        <!-- Ícono de Instagram -->
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://www.instagram.com/aliciashz_/" target="_blank">
+                        <!-- Inicial de Alicia -->
+                    <span class="initial">A</span>
+                        <!-- Ícono de Instagram -->
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+                <!-- Texto de derechos de autor y año -->
+            <p>&copy; 2023 Interrail Adventure<br>Todos los derechos reservados</p>
+        </footer>
+
+            <!-- Botón de Volver Arriba -->
+            <button onclick="scrollToTop()" id="volverArribaBtn" title="Volver Arriba">↑</button>
+
+            <script>
+                // Función para desplazarse hacia arriba al hacer clic en el botón 
+                function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth' // Desplazamiento suave
+                    });
+                }
+                // Mostrar u ocultar el botón de Volver Arriba según la posición de desplazamiento
+                window.addEventListener('scroll', () => {
+                    const volverArribaBtn = document.getElementById('volverArribaBtn');
+                    if (window.scrollY > 150) {
+                        volverArribaBtn.style.display = 'block';
+                    } else {
+                        volverArribaBtn.style.display = 'none';
+                    }
+                });
+            </script>
+
+            
+    </body>
+</html>
